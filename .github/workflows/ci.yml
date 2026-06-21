@@ -78,7 +78,8 @@ jobs:
       - name: Fail on high/critical pip-audit findings
         run: |
           python - <<'PY'
-import json,sys
+import json
+import sys
 path='pip_audit_report.json'
 try:
     data=json.load(open(path))
