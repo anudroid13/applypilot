@@ -25,8 +25,8 @@ jobs:
 
       - name: Prettier formatting check
         run: |
-          # Use npx to run Prettier check; fails on formatting issues
-          npx --yes prettier --check .
+          npm install
+          npm run format:check
         shell: bash
 
       - name: Python formatting & lint checks
