@@ -23,13 +23,13 @@ Reduce the manual overhead of a job search to: (1) uploading a resume once, (2) 
 
 ### 1.4 Success metrics
 
-| Metric | Target |
-|---|---|
-| Resume parse accuracy | ≥ 95% fields correctly extracted |
-| Relevance score correlation with manual assessment | ≥ 85% agreement |
-| Successful form submissions (dry-run verified) | ≥ 90% of approved jobs |
-| Time from "run" to notification | < 30 minutes end-to-end |
-| Zero accidental applications | 100% — human gate is mandatory |
+| Metric                                             | Target                           |
+| -------------------------------------------------- | -------------------------------- |
+| Resume parse accuracy                              | ≥ 95% fields correctly extracted |
+| Relevance score correlation with manual assessment | ≥ 85% agreement                  |
+| Successful form submissions (dry-run verified)     | ≥ 90% of approved jobs           |
+| Time from "run" to notification                    | < 30 minutes end-to-end          |
+| Zero accidental applications                       | 100% — human gate is mandatory   |
 
 ---
 
@@ -176,7 +176,6 @@ This section is mandatory. Follow these controls before running the agent with r
 - [ ] DB backups and DB file permission verified
 - [ ] Dependency vulnerability scan run at least once per week (CI)
 
-
 ### 5.4 Observability
 
 - Loguru structured logs to `data/logs/applypilot_{date}.log`.
@@ -230,14 +229,14 @@ This section is mandatory. Follow these controls before running the agent with r
 
 ## 11. Risks & mitigations (UPDATED)
 
-| Risk | Likelihood | Mitigation |
-|---|---|---|
-| LinkedIn blocks scraper account | High | Use secondary account for dev; implement delays + undetected-playwright; cookie persistence to minimise logins |
-| CAPTCHA on login | Medium | Manual solve fallback via `gr.Image` + input in UI; avoid 3rd-party captcha solving without consent |
-| Apply form structure changes | Medium | Stage 5 modular per-ATS; log failures, mark manual_required, notify |
-| OpenAI rate limits / key abuse | Low | Tenacity retry; batch scoring with sleep; cache LLM outputs; monitor usage and rotate keys quickly |
-| Accidental mass application | Low | `DRY_RUN` default-on; human gate mandatory; `max_applications_per_run` cap |
+| Risk                            | Likelihood | Mitigation                                                                                                     |
+| ------------------------------- | ---------- | -------------------------------------------------------------------------------------------------------------- |
+| LinkedIn blocks scraper account | High       | Use secondary account for dev; implement delays + undetected-playwright; cookie persistence to minimise logins |
+| CAPTCHA on login                | Medium     | Manual solve fallback via `gr.Image` + input in UI; avoid 3rd-party captcha solving without consent            |
+| Apply form structure changes    | Medium     | Stage 5 modular per-ATS; log failures, mark manual_required, notify                                            |
+| OpenAI rate limits / key abuse  | Low        | Tenacity retry; batch scoring with sleep; cache LLM outputs; monitor usage and rotate keys quickly             |
+| Accidental mass application     | Low        | `DRY_RUN` default-on; human gate mandatory; `max_applications_per_run` cap                                     |
 
 ---
 
-*End of PRD v1.1*
+_End of PRD v1.1_

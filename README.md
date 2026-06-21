@@ -34,6 +34,7 @@ playwright install chromium
 Create a `.env` from the provided `.env.example` and populate the secrets. DO NOT commit `.env` to version control.
 
 Preferred options (in order):
+
 - Use your OS or cloud secrets manager (macOS Keychain, AWS Secrets Manager, Azure Key Vault, HashiCorp Vault) and inject keys into the environment at runtime.
 - For local development only: create a `.env` file in the project root and set restrictive permissions:
 
@@ -44,6 +45,7 @@ chmod 600 .env
 ```
 
 Environment variable notes:
+
 - `OPENAI_API_KEY` must be provided via environment — do not hardcode.
 - Prefer separate keys for development vs production.
 - Rotate keys regularly and revoke immediately if exposed.
@@ -60,6 +62,7 @@ python app.py
 ```
 
 Notes:
+
 - Keep `DRY_RUN=true` until you have validated the apply flows.
 - The UI shows whether live submit is enabled; the human-approval gate is mandatory.
 
@@ -67,16 +70,16 @@ Notes:
 
 ## Environment variables (short)
 
-| Variable | Required | Description |
-|---|---|---|
-| `OPENAI_API_KEY` | ✅ | GPT-4o API key — provide via environment or secrets manager |
-| `LINKEDIN_EMAIL` | ✅ | LinkedIn login email |
-| `LINKEDIN_PASSWORD` | ✅ | LinkedIn password |
-| `NAUKRI_EMAIL` | optional | Naukri login email |
-| `NAUKRI_PASSWORD` | optional | Naukri password |
-| `TELEGRAM_BOT_TOKEN` | optional | From @BotFather |
-| `TELEGRAM_CHAT_ID` | optional | Your personal chat ID |
-| ... | | (see `.env.example` for full list) |
+| Variable             | Required | Description                                                 |
+| -------------------- | -------- | ----------------------------------------------------------- |
+| `OPENAI_API_KEY`     | ✅       | GPT-4o API key — provide via environment or secrets manager |
+| `LINKEDIN_EMAIL`     | ✅       | LinkedIn login email                                        |
+| `LINKEDIN_PASSWORD`  | ✅       | LinkedIn password                                           |
+| `NAUKRI_EMAIL`       | optional | Naukri login email                                          |
+| `NAUKRI_PASSWORD`    | optional | Naukri password                                             |
+| `TELEGRAM_BOT_TOKEN` | optional | From @BotFather                                             |
+| `TELEGRAM_CHAT_ID`   | optional | Your personal chat ID                                       |
+| ...                  |          | (see `.env.example` for full list)                          |
 
 ---
 
@@ -92,16 +95,16 @@ Notes:
 
 ## Tech stack
 
-| Layer | Technology |
-|---|---|
-| UI | Gradio 4.x (Blocks) |
-| LLM | OpenAI GPT-4o via LangChain |
+| Layer              | Technology                                    |
+| ------------------ | --------------------------------------------- |
+| UI                 | Gradio 4.x (Blocks)                           |
+| LLM                | OpenAI GPT-4o via LangChain                   |
 | Browser automation | Playwright (undetected-chromedriver fallback) |
-| Database | SQLite → PostgreSQL |
-| Scheduler | APScheduler |
-| Notifications | python-telegram-bot, Twilio |
-| Config | Pydantic Settings + python-dotenv |
-| Logging | Loguru |
+| Database           | SQLite → PostgreSQL                           |
+| Scheduler          | APScheduler                                   |
+| Notifications      | python-telegram-bot, Twilio                   |
+| Config             | Pydantic Settings + python-dotenv             |
+| Logging            | Loguru                                        |
 
 ---
 
