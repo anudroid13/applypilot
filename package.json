@@ -1,0 +1,11 @@
+{
+  "name": "applypilot",
+  "private": true,
+  "devDependencies": {
+    "prettier": "^3.0.0"
+  },
+  "scripts": {
+    "format:check": "prettier --check .",
+    "format": "prettier --write ."
+  }
+}

@@ -1,0 +1,21 @@
+[MASTER]
+ignore=__pycache__,.venv,venv,.git,.github,node_modules
+jobs=1
+
+[MESSAGES CONTROL]
+disable=
+    C0114,
+    C0115,
+    C0116,
+    R0903,
+    R0201,
+    R0913,
+    W0511
+
+[REPORTS]
+reports=no
+evaluation=10.0
+
+[FORMAT]
+max-line-length=88
+indent-string='    '
