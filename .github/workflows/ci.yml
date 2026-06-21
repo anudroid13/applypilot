@@ -78,54 +78,54 @@ jobs:
       - name: Fail on high/critical pip-audit findings
         run: |
           python - <<'PY'
-            import json
-            import sys
-            path='pip_audit_report.json'
-            try:
-                data=json.load(open(path))
-            except Exception as e:
-                print('No pip_audit_report.json or failed to parse:',e)
-                sys.exit(0)
+          import json
+          import sys
+          path='pip_audit_report.json'
+          try:
+              data=json.load(open(path))
+          except Exception as e:
+              print('No pip_audit_report.json or failed to parse:',e)
+              sys.exit(0)
 
-            def vuln_is_severe(v):
-                # Try several common fields
-                sev = ''
-                if isinstance(v, dict):
-                    sev = (v.get('severity') or '')
-                    if not sev:
-                        # some advisories nest severity
-                        adv = v.get('advisory') or {}
-                        if isinstance(adv, dict):
-                            sev = adv.get('severity') or ''
-                if isinstance(sev, str) and sev.upper() in ('HIGH','CRITICAL'):
-                    return True
-                # Check CVSS-like scores
-                score = None
-                if isinstance(v, dict):
-                    cvss = v.get('cvss') or {}
-                    if isinstance(cvss, dict):
-                        score = cvss.get('score') or cvss.get('baseScore')
-                    score = score or v.get('cvss_score') or v.get('cvssScore')
-                try:
-                    if score is not None and float(score) >= 7.0:
-                        return True
-                except Exception:
-                    pass
-                return False
+          def vuln_is_severe(v):
+              # Try several common fields
+              sev = ''
+              if isinstance(v, dict):
+                  sev = (v.get('severity') or '')
+                  if not sev:
+                      # some advisories nest severity
+                      adv = v.get('advisory') or {}
+                      if isinstance(adv, dict):
+                          sev = adv.get('severity') or ''
+              if isinstance(sev, str) and sev.upper() in ('HIGH','CRITICAL'):
+                  return True
+              # Check CVSS-like scores
+              score = None
+              if isinstance(v, dict):
+                  cvss = v.get('cvss') or {}
+                  if isinstance(cvss, dict):
+                      score = cvss.get('score') or cvss.get('baseScore')
+                  score = score or v.get('cvss_score') or v.get('cvssScore')
+              try:
+                  if score is not None and float(score) >= 7.0:
+                      return True
+              except Exception:
+                  pass
+              return False
 
-            severe = []
-            for rec in data:
-                for v in rec.get('vulns', []) if isinstance(rec, dict) else []:
-                    if vuln_is_severe(v):
-                        severe.append((rec.get('name'), rec.get('version'), v.get('id') if isinstance(v, dict) else str(v)))
+          severe = []
+          for rec in data:
+              for v in rec.get('vulns', []) if isinstance(rec, dict) else []:
+                  if vuln_is_severe(v):
+                      severe.append((rec.get('name'), rec.get('version'), v.get('id') if isinstance(v, dict) else str(v)))
 
-            if severe:
-                print('Found high/critical vulnerabilities:')
-                for s in severe:
-                    print('-', s)
-                sys.exit(1)
-            else:
-                print('No high/critical vulnerabilities found')
+          if severe:
+              print('Found high/critical vulnerabilities:')
+              for s in severe:
+                  print('-', s)
+              sys.exit(1)
+          else:
+              print('No high/critical vulnerabilities found')
           PY
         shell: bash
 
