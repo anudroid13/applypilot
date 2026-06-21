@@ -1,0 +1,56 @@
+# ──────────────────────────────────────────────
+# ApplyPilot — requirements.txt
+# Python 3.11+
+# ──────────────────────────────────────────────
+
+# ── Web UI ────────────────────────────────────
+gradio==4.44.0
+
+# ── Browser Automation ───────────────────────
+playwright==1.47.0
+undetected-chromedriver==3.5.5        # fallback for sites blocking Playwright
+
+# ── Resume Parsing ────────────────────────────
+pymupdf==1.24.10                      # PDF text extraction (fitz)
+python-docx==1.1.2                    # DOCX text extraction
+pdfplumber==0.11.4                    # table-aware PDF parsing (supplementary)
+
+# ── LLM / AI ──────────────────────────────────
+openai==1.51.0
+langchain==0.3.3
+langchain-openai==0.2.3
+langchain-community==0.3.3
+tiktoken==0.8.0                       # token counting for context management
+
+# ── Data & Storage ───────────────────────────
+sqlalchemy==2.0.35                    # ORM for job state DB
+alembic==1.13.3                       # DB migrations
+aiosqlite==0.20.0                     # async SQLite driver (dev)
+psycopg2-binary==2.9.9                # Postgres driver (prod)
+
+# ── Task Scheduling ─────────────────────────
+apscheduler==3.10.4                   # periodic scrape + apply runs
+
+# ── Notifications ─────────────────────────────
+python-telegram-bot==21.6             # Telegram Bot API
+twilio==9.3.3                         # WhatsApp via Twilio (optional)
+
+# ── HTTP & Utilities ──────────────────────────
+httpx==0.27.2                         # async HTTP client
+tenacity==9.0.0                       # retry logic for API calls + scraping
+python-dotenv==1.0.1                  # .env secrets management
+pydantic==2.9.2                       # data validation / settings
+pydantic-settings==2.5.2              # settings from env vars
+
+# ── Data Processing ─────────────────────────
+pandas==2.2.3                         # job list manipulation, CSV export
+numpy==2.1.2
+
+# ── Logging & Observability ───────────────────
+loguru==0.7.2                         # structured logging
+rich==13.9.2                          # pretty console output during dev
+
+# ── Dev / Testing ─────────────────────────────
+pytest==8.3.3
+pytest-asyncio==0.24.0
+pytest-mock==3.14.0

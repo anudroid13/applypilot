@@ -1,0 +1,150 @@
+name: CI
+
+on:
+  push: {}
+  pull_request: {}
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Prettier formatting check
+        run: |
+          # Use npx to run Prettier check; fails on formatting issues
+          npx --yes prettier --check .
+        shell: bash
+
+      - name: Python formatting & lint checks
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_BASE_REF: ${{ github.base_ref }}
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install black isort pylint
+          # Check formatting (fail the job if issues found)
+          black --check .
+          isort --check-only .
+
+          # Run pylint only on changed Python files for PRs, full repo on pushes
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            echo "PR event detected. Determining changed files against base ref: $GITHUB_BASE_REF"
+            git fetch origin "$GITHUB_BASE_REF" --depth=1 || true
+            CHANGED=$(git diff --name-only "origin/$GITHUB_BASE_REF...HEAD" | grep '\.py$' || true)
+          else
+            echo "Non-PR event; running pylint on all tracked Python files"
+            CHANGED=$(git ls-files '*.py')
+          fi
+
+          if [ -z "$CHANGED" ]; then
+            echo "No Python files changed; skipping pylint"
+            exit 0
+          fi
+
+          echo "Running pylint on the following files:"
+          echo "$CHANGED"
+          # Run pylint; fail job on non-zero exit
+          pylint $CHANGED
+        shell: bash
+
+      - name: Install pip-tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pip-audit==2.1.0
+
+      - name: Dependency vulnerability scan (pip-audit)
+        run: |
+          # Install project deps in isolated virtualenv to allow resolution
+          python -m venv .venv_ci
+          source .venv_ci/bin/activate
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt || true
+          python -m pip_audit --format=json > pip_audit_report.json || true
+          cat pip_audit_report.json
+      - name: Fail on high/critical pip-audit findings
+        run: |
+          python - <<'PY'
+import json,sys
+path='pip_audit_report.json'
+try:
+    data=json.load(open(path))
+except Exception as e:
+    print('No pip_audit_report.json or failed to parse:',e)
+    sys.exit(0)
+
+def vuln_is_severe(v):
+    # Try several common fields
+    sev = ''
+    if isinstance(v, dict):
+        sev = (v.get('severity') or '')
+        if not sev:
+            # some advisories nest severity
+            adv = v.get('advisory') or {}
+            if isinstance(adv, dict):
+                sev = adv.get('severity') or ''
+    if isinstance(sev, str) and sev.upper() in ('HIGH','CRITICAL'):
+        return True
+    # Check CVSS-like scores
+    score = None
+    if isinstance(v, dict):
+        cvss = v.get('cvss') or {}
+        if isinstance(cvss, dict):
+            score = cvss.get('score') or cvss.get('baseScore')
+        score = score or v.get('cvss_score') or v.get('cvssScore')
+    try:
+        if score is not None and float(score) >= 7.0:
+            return True
+    except Exception:
+        pass
+    return False
+
+severe = []
+for rec in data:
+    for v in rec.get('vulns', []) if isinstance(rec, dict) else []:
+        if vuln_is_severe(v):
+            severe.append((rec.get('name'), rec.get('version'), v.get('id') if isinstance(v, dict) else str(v)))
+
+if severe:
+    print('Found high/critical vulnerabilities:')
+    for s in severe:
+        print('-', s)
+    sys.exit(1)
+else:
+    print('No high/critical vulnerabilities found')
+PY
+        shell: bash
+
+      - name: Install gitleaks
+        run: |
+          curl -sSL https://github.com/zricethezav/gitleaks/releases/download/v8.18.0/gitleaks_8.18.0_linux_x64.tar.gz | tar -xz -C /tmp
+          sudo mv /tmp/gitleaks /usr/local/bin/gitleaks
+        shell: bash
+
+      - name: Secret scanning (gitleaks)
+        run: |
+          # Fail the job if gitleaks finds secrets (exit code != 0)
+          gitleaks detect --source . --report-path gitleaks-report.json
+          cat gitleaks-report.json
+        shell: bash
+
+      - name: Upload reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports
+          path: |
+            pip_audit_report.json
+            gitleaks-report.json
